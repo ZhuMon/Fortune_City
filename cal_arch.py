@@ -5,6 +5,7 @@ class citizen():
     def __init__(self):
         # 收入 其他 食物 飲品 交通 消費 遊戲 居家 醫藥 3C
         self.value = {}
+        self.name = ""
         for i in range(1, 11):
             self.value[i] = 0
         
@@ -30,22 +31,22 @@ class citizen():
         return self.get(self.max_income_work())
 def get_income_table(ws):
     income_table = {}
-    for i in range(1,9):
-        income_table[i] = []
-        for j in range(2, 12):
+    for i in range(1,9): #level
+        income_table[i] = {}
+        for j in range(2, 12): # 熟練度
             v = ws.cell(row=j, column=i+1).value
-            income_table[i].append(v)
+            income_table[i][j-1] = v
     return income_table
 
 class building():
     def __init__(self, level, kind):
         self.level = level
         self.kind = kind
-        self.empolyees = [] # [citizen(), citizen(), ... ]
+        self.employees = [] # [citizen(), citizen(), ... ]
 
     def hire(self, person):
-        if self.len(self.employees) < self.level:
-            self.empolyees.append(person)
+        if len(self.employees) < self.level:
+            self.employees.append(person)
             return True
         else:
             return False
@@ -81,8 +82,9 @@ def get_citizens(ws):
     for c in range(2, ws.max_row+1):
         tmp = citizen()
         for t in range(2, 12):
-            v = ws.cell(row=c, column=t)
+            v = ws.cell(row=c, column=t).value
             tmp.put(t-1, v)
+        tmp.name = ws.cell(row=c, column=1).value
         citizens[ws.cell(row=c, column=1).value] = tmp
     return citizens
 
@@ -138,6 +140,7 @@ def main():
 
 
     total_income = 0
+
     # 擁有最多最高等級建築的種類開始
     new_building_list = sort_building(building_list, building_table)
     # print(new_list)
@@ -145,15 +148,21 @@ def main():
     for n in new_building_list:
         print(num2kind(n.kind, n.level))
         for lv in range(n.level):
+            if len(citizens) == 0:
+                break
             c = get_highest_citizen(citizens, n.kind)
             if n.hire(c) == False:
                 print("error")
+                break
+            total_income += int(income_table[n.level][c.get(n.kind)])
+            print(int(income_table[n.level][c.get(n.kind)]))
             citizens.pop(c.name)
             print("\t"+c.name)
+        
+        if len(citizens) == 0:
+            break
 
-
-
-
+    print(total_income)
 
 if __name__ == "__main__":
     main()
