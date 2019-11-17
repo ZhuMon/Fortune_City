@@ -160,7 +160,7 @@ def main():
             print("\t"+c.name)
         
         if n.level == 5:
-            total_income += 2
+            total_income += 1
         if len(citizens) == 0:
             break
 
